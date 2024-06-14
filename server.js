@@ -24,8 +24,8 @@ server.listen(PORT, HOST, () => {
 
 // Gracefully close the database connection when the server stops
 process.on("SIGINT", () => {
-  const connection = app.get("connection");
-  connection.end((err) => {
+  const pool = app.get("pool");
+  pool.end((err) => {
     if (err) {
       console.error("Error closing the database connection:", err);
     } else {
