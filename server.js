@@ -4,7 +4,7 @@ const app = require("./app"); // Import app.js
 const WebSocket = require("ws");
 
 const PORT = process.env.PORT || 3000;
-const HOST = "localhost"; // Bind to localhost
+const HOST = "0.0.0.0"; // Bind to all network interfaces
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
