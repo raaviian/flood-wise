@@ -1,0 +1,39 @@
+/* Custom CSS for forum page */
+body {
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-top: 20px;
+}
+
+.main-content {
+  padding: 20px;
+}
+
+.card {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-weight: bold;
+}
+
+.card-text {
+  color: #555;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}

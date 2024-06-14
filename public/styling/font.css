@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "YourFontName";
+  src: url("font/Barlow/Barlow-Light.ttf") format("truetype"); /* Update the path and format accordingly */
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Barlow", sans-serif; /* Apply your custom font to the entire page */
+}
+
+.weather-card {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.weather-icon {
+  margin-bottom: 1rem;
+}
+
+.weather-description {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.temperature {
+  font-size: 3rem;
+}

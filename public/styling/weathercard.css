@@ -1,0 +1,24 @@
+.weather-card {
+  background-color: #95bde4;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.weather-icon {
+  margin-bottom: 1rem;
+}
+
+.weather-description {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.temperature {
+  font-size: 1.2rem;
+}

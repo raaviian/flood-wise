@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Log in - FloodWise</title>
+    <link rel="icon" href="assets/fw-plain.png" type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        display: flex;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: rgb(38, 88, 207);
+        background: linear-gradient(
+          90deg,
+          rgba(38, 88, 207, 1) 0%,
+          rgba(14, 14, 14, 1) 81%
+        );
+        color: #fff;
+      }
+
+      .login-container {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .login-box {
+        display: flex;
+        background: #212431;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        width: 1000px;
+        max-width: 100%;
+        height: 600px;
+      }
+
+      .login-box .left {
+        padding: 40px;
+        flex: 1.5;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .login-box .right {
+        background: url("assets/bg-3.jpg") no-repeat center center;
+        background-size: cover;
+        flex: 1;
+      }
+
+      .login-box h2 {
+        margin-bottom: 20px;
+        font-size: 32px;
+      }
+
+      .login-box form .form-floating {
+        margin-bottom: 20px;
+      }
+
+      .login-box form .btn {
+        background-color: #5a67d8;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .login-box form .btn:hover {
+        background-color: #4c51bf;
+      }
+
+      .login-box .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        background: #fff;
+        color: #000;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .login-box .google-btn img {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-box">
+        <div class="left">
+          <h2>Login</h2>
+          <p>Sign in to access the FloodWise dashboard</p>
+          <form id="MainForm" class="w-100">
+            <div class="form-floating mb-3">
+              <input
+                type="email"
+                class="form-control"
+                id="emailInp"
+                placeholder="name@example.com"
+                required
+              />
+              <label for="emailInp">Email address</label>
+            </div>
+            <div class="form-floating mb-3">
+              <input
+                type="password"
+                class="form-control"
+                id="passwordInp"
+                placeholder="Password"
+                required
+              />
+              <label for="passwordInp">Password</label>
+            </div>
+            <label
+              id="forgotpasslabel"
+              style="
+                cursor: pointer;
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #5a67d8;
+              "
+              >Forgot Password</label
+            >
+            <button type="submit" class="btn">Login</button>
+            <a href="register.html" class="btn">Register</a>
+          </form>
+        </div>
+        <div class="right">
+          <!-- Background image goes here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div
+      class="modal fade"
+      id="forgotPasswordModal"
+      tabindex="-1"
+      aria-labelledby="forgotPasswordModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="forgotPasswordModalLabel">
+              Forgot Password
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p id="forgotPasswordMessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wrong Password Modal -->
+    <div
+      class="modal fade"
+      id="wrongPasswordModal"
+      tabindex="-1"
+      aria-labelledby="wrongPasswordModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="wrongPasswordModalLabel">
+              Login Error
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Incorrect email or password. Please try again.</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import {
+        getDatabase,
+        get,
+        ref,
+        child,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        sendPasswordResetEmail,
+      } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCPuXNVOmWX3OpkcR7Y9qh0wAETCxgmVM8",
+        authDomain: "floodwise-backend.firebaseapp.com",
+        databaseURL:
+          "https://floodwise-backend-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "floodwise-backend",
+        storageBucket: "floodwise-backend.appspot.com",
+        messagingSenderId: "232729649842",
+        appId: "1:232729649842:web:1b653695b09d142dfa9fab",
+        measurementId: "G-N5082RR7PG",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const auth = getAuth(app);
+      const dbref = ref(db);
+
+      // JS logic
+      const emailInp = document.getElementById("emailInp");
+      const passInp = document.getElementById("passwordInp");
+      const MainForm = document.getElementById("MainForm");
+      const forgotpasslabel = document.getElementById("forgotpasslabel");
+
+      const signInUser = (evt) => {
+        evt.preventDefault();
+        signInWithEmailAndPassword(auth, emailInp.value, passInp.value)
+          .then((credentials) => {
+            get(child(dbref, `userAuthList/${credentials.user.uid}`))
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  sessionStorage.setItem(
+                    "user-info",
+                    JSON.stringify({
+                      firstname: snapshot.val().firstname,
+                      lastname: snapshot.val().lastname,
+                    })
+                  );
+                  sessionStorage.setItem(
+                    "user-creds",
+                    JSON.stringify(credentials.user)
+                  );
+                  window.location.href = "homepage.html";
+                } else {
+                  console.error("User data does not exist.");
+                  showWrongPasswordModal("User data does not exist.");
+                }
+              })
+              .catch((error) => {
+                console.error("Error fetching user data:", error);
+                showWrongPasswordModal("Error fetching user data.");
+              });
+          })
+          .catch((error) => {
+            console.error("Login failed:", error);
+            showWrongPasswordModal("Incorrect email or password.");
+          });
+      };
+
+      const ForgotPassword = () => {
+        sendPasswordResetEmail(auth, emailInp.value)
+          .then(() => {
+            document.getElementById("forgotPasswordMessage").innerText =
+              "Reset password link has been sent to your email";
+            const forgotPasswordModal = new bootstrap.Modal(
+              document.getElementById("forgotPasswordModal")
+            );
+            forgotPasswordModal.show();
+          })
+          .catch((error) => {
+            document.getElementById("forgotPasswordMessage").innerText =
+              "Type your email inside the email box first.";
+            const forgotPasswordModal = new bootstrap.Modal(
+              document.getElementById("forgotPasswordModal")
+            );
+            forgotPasswordModal.show();
+          });
+      };
+
+      MainForm.addEventListener("submit", signInUser);
+      forgotpasslabel.addEventListener("click", ForgotPassword);
+
+      function showWrongPasswordModal(message) {
+        const modalBody = document.querySelector(
+          "#wrongPasswordModal .modal-body p"
+        );
+        modalBody.textContent = message;
+        const wrongPasswordModal = new bootstrap.Modal(
+          document.getElementById("wrongPasswordModal")
+        );
+        wrongPasswordModal.show();
+      }
+    </script>
+  </body>
+</html>

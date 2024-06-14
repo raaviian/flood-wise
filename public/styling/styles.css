@@ -1,0 +1,85 @@
+/* Common styles for both login.html and register.html */
+body {
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-logo {
+  margin-right: 10px;
+  border-radius: 50%; /* Optional: Add border-radius for a circular shape */
+}
+
+/* Optional: Adjust styling for the sign-out button */
+.btn-outline-success {
+  margin-left: 10px;
+}
+
+.container {
+  background-color: rgba(
+    220,
+    220,
+    220,
+    0.4
+  ); /* Adjust the alpha value as needed */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#MainForm {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h2 {
+  text-align: center;
+  color: #ffffff;
+}
+
+button {
+  width: 100%;
+}
+
+.btn-outline-primary {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.btn-primary,
+.btn-outline-primary {
+  color: #ffffff;
+  width: 100%;
+}
+
+.w-50.text-white.text-center {
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.w-50.text-white.text-center p {
+  margin-bottom: 20px;
+}
+
+/* Background styles specific to register.html and login.html */
+.body-bg {
+  background-color: #000000;
+  background-image: url(../assets/bg-flood.jpg);
+  background-size: cover; /* Make the background image cover the entire viewport */
+  background-position: center; /* Center the background image */
+}
+
+footer {
+  background-color: #343a40; /* Adjust the background color as needed */
+  color: #ffffff; /* Adjust the text color as needed */
+  text-align: center;
+  padding: 10px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}

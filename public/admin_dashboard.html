@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">FloodWise Control Center</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button id="logoutButton" class="btn btn-outline-danger">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4>Add New Phone Number</h4>
+            </div>
+            <div class="card-body">
+              <form id="addPhoneNumberForm">
+                <div class="mb-3">
+                  <p>Insert new phone number to give alert</p>
+                  <label for="phoneNumber" class="form-label"
+                    >Phone Number:</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Add Phone Number
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4>Registered Phone Numbers</h4>
+            </div>
+            <div class="card-body">
+              <p>
+                This is listed registered client's phone number, all alert will
+                be sent to this phone number.
+              </p>
+              <ul id="phoneNumbersList" class="list-group"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <h4>Device Control</h4>
+            </div>
+            <div class="card-body text-center">
+              <p>To use this switch you need authority from supervisor.</p>
+              <button id="toggleDisplayButton" class="btn btn-secondary">
+                ON / OFF
+              </button>
+              <div class="mt-3">
+                <h5>Button Activity Log</h5>
+                <ul id="activityLog" class="list-group"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flood Reports Section -->
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <h4>Flood Reports</h4>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped" id="floodReportsTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Contact</th>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Flood reports will be inserted here dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rescue Modal -->
+    <div
+      class="modal fade"
+      id="rescueModal"
+      tabindex="-1"
+      aria-labelledby="rescueModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rescueModalLabel">Rescue Action</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            Rescue action has been initiated for <span id="rescueName"></span>.
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("addPhoneNumberForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent form submission
+
+          const phoneNumber = document.getElementById("phoneNumber").value;
+
+          // Send POST request to backend to add phone number
+          fetch("/add-phone-number", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ number: phoneNumber }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.json().then((error) => {
+                  throw new Error(error.message);
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert(data.message);
+              loadPhoneNumbers(); // Reload the phone numbers list
+            })
+            .catch((error) => {
+              console.error("Error adding phone number:", error);
+              alert("Failed to add phone number. Please try again.");
+            });
+        });
+
+      function loadPhoneNumbers() {
+        fetch("/phone-numbers")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Network response was not ok: ${response.statusText}`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const phoneNumbersList =
+              document.getElementById("phoneNumbersList");
+            phoneNumbersList.innerHTML = ""; // Clear the list
+
+            data.forEach((phoneNumber) => {
+              const listItem = document.createElement("li");
+              listItem.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+              listItem.textContent = phoneNumber.number;
+
+              const deleteButton = document.createElement("button");
+              deleteButton.className = "btn btn-danger btn-sm";
+              deleteButton.textContent = "Delete";
+              deleteButton.onclick = () => deletePhoneNumber(phoneNumber.id);
+
+              listItem.appendChild(deleteButton);
+              phoneNumbersList.appendChild(listItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching phone numbers:", error);
+          });
+      }
+
+      function deletePhoneNumber(id) {
+        fetch(`/phone-numbers/${id}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((error) => {
+                throw new Error(error.message);
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert(data.message);
+            loadPhoneNumbers(); // Reload the phone numbers list
+          })
+          .catch((error) => {
+            console.error("Error deleting phone number:", error);
+            alert("Failed to delete phone number. Please try again.");
+          });
+      }
+
+      function toggleDisplay() {
+        console.log("Toggling display...");
+        fetch("/toggle-display", {
+          method: "POST",
+        })
+          .then((response) => {
+            console.log("Response received from server");
+            if (!response.ok) {
+              return response.json().then((error) => {
+                throw new Error(error.message);
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(
+              `Data display is now ${data.displayData ? "ON" : "OFF"}`
+            );
+            alert(`Data display is now ${data.displayData ? "ON" : "OFF"}`);
+            loadActivityLog(); // Load the activity log
+          })
+          .catch((error) => {
+            console.error("Error toggling data display:", error);
+            alert("Failed to toggle data display. Please try again.");
+          });
+      }
+
+      function loadActivityLog() {
+        fetch("/button-logs")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Network response was not ok: ${response.statusText}`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const activityLog = document.getElementById("activityLog");
+            activityLog.innerHTML = ""; // Clear the log
+
+            data.forEach((log) => {
+              const listItem = document.createElement("li");
+              listItem.className = "list-group-item";
+              listItem.textContent = `${log.activity} at ${new Date(
+                log.timestamp
+              ).toLocaleString()}`;
+
+              activityLog.appendChild(listItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching activity logs:", error);
+          });
+      }
+
+      function loadFloodReports() {
+        fetch("/flood-reports")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Network response was not ok: ${response.statusText}`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const floodReportsTable = document.querySelector(
+              "#floodReportsTable tbody"
+            );
+            floodReportsTable.innerHTML = ""; // Clear the table body
+
+            data.forEach((report) => {
+              const row = document.createElement("tr");
+
+              const nameCell = document.createElement("td");
+              nameCell.textContent = report.name;
+              row.appendChild(nameCell);
+
+              const locationCell = document.createElement("td");
+              locationCell.textContent = report.location;
+              row.appendChild(locationCell);
+
+              const contactCell = document.createElement("td");
+              contactCell.textContent = report.contact;
+              row.appendChild(contactCell);
+
+              const timestampCell = document.createElement("td");
+              timestampCell.textContent = new Date(
+                report.report_time
+              ).toLocaleString();
+              row.appendChild(timestampCell);
+
+              const actionCell = document.createElement("td");
+              const rescueButton = document.createElement("button");
+              rescueButton.className = "btn btn-primary btn-sm";
+              rescueButton.textContent = "Rescue";
+              rescueButton.onclick = () => showRescueModal(report.name);
+              actionCell.appendChild(rescueButton);
+              row.appendChild(actionCell);
+
+              floodReportsTable.appendChild(row);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching flood reports:", error);
+          });
+      }
+
+      function showRescueModal(name) {
+        document.getElementById("rescueName").textContent = name;
+        var rescueModal = new bootstrap.Modal(
+          document.getElementById("rescueModal")
+        );
+        rescueModal.show();
+      }
+
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", function () {
+          // Redirect to logout page
+          window.location.href = "adminlogin.html";
+        });
+
+      document
+        .getElementById("toggleDisplayButton")
+        .addEventListener("click", toggleDisplay);
+
+      // Initial load of phone numbers, activity log, and flood reports
+      loadPhoneNumbers();
+      loadActivityLog();
+      loadFloodReports();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FloodWise - Forum</title>
+    <link rel="icon" href="assets/fw-plain.png" type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="styling/font.css" />
+    <style>
+      body {
+        background: rgb(58, 162, 180);
+        background: rgb(38, 88, 207);
+        background-color: #0a1d37;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .post {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .post-text {
+        font-size: 16px;
+        color: #333;
+      }
+      .post-likes {
+        font-size: 14px;
+        color: #555;
+      }
+      .post-date {
+        font-size: 12px;
+        color: #999;
+      }
+      .like-button {
+        cursor: pointer;
+        color: #007bff;
+      }
+      .like-button:hover {
+        color: #0056b3;
+      }
+      .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100vh - 1rem);
+      }
+      .navbar {
+        background-color: white;
+      }
+      .navbar-brand img {
+        height: 50px;
+      }
+      .navbar-nav .nav-link {
+        color: #000000;
+      }
+      .navbar-nav .nav-link:hover {
+        color: #555555;
+      }
+      .posts-container {
+        margin: 0 auto;
+        max-width: 800px;
+      }
+      .right-container {
+        background-color: #2f3136;
+        color: #b9bbbe;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .right-container a {
+        color: #00aff4;
+        text-decoration: none;
+      }
+      .right-container a:hover {
+        text-decoration: underline;
+      }
+      .weather {
+        background-color: #222;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+      }
+      .weather-description {
+        color: #b9bbbe;
+        font-size: 14px;
+      }
+      .temperature {
+        color: #b9bbbe;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="homepage.html">
+          <img src="assets/fw-plain.png" alt="FloodWise Logo" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="forum.html">Forum</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="feature.html">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="floodmonitor.html"
+                >Flood Monitoring</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="aboutus.html">About Us</a>
+            </li>
+          </ul>
+          <form class="d-flex">
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              id="signoutbutton"
+            >
+              Sign Out
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-3">
+      <div class="row">
+        <div class="col-md-8">
+          <div id="posts-container"></div>
+        </div>
+        <div class="col-md-4">
+          <div class="right-container mt-2">
+            <button
+              class="btn btn-outline-light w-100 mb-3"
+              data-bs-toggle="modal"
+              data-bs-target="#postModal"
+            >
+              Create Post
+            </button>
+            <div class="bg-dark text-light p-3 rounded">
+              <div class="weather">
+                <h5>Weather</h5>
+                <div
+                  id="weather-info"
+                  class="d-flex flex-column align-items-center"
+                >
+                  <div
+                    id="weatherDescription"
+                    class="weather-description"
+                  ></div>
+                  <div id="temperature" class="temperature"></div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-dark text-light align-items-center"></div>
+            <div class="mt-3">
+              <h6>Comment of the day</h6>
+              <a href="#">Top 100</a>
+              <p>
+                you suddenly travel back 100,000 years to a cave that will
+                eventually be discovered by archaeologists, what do you write on
+                the wall to mess with them?
+              </p>
+              <p><strong>NolmNot</strong> - 23 hours ago - +2.8K</p>
+              <p>How to ruin an entire timeline</p>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between"></div>
+            <p class="text-center mt-3">Mix Inc © 2022 . All rights reserved</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Modal -->
+    <div
+      class="modal fade"
+      id="postModal"
+      tabindex="-1"
+      aria-labelledby="postModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postModalLabel">Create Post</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="postForm">
+              <div class="mb-3">
+                <textarea
+                  class="form-control"
+                  id="postText"
+                  rows="3"
+                  placeholder="What's on your mind?"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Post</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div
+      class="modal fade"
+      id="warningModal"
+      tabindex="-1"
+      aria-labelledby="warningModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="warningModalLabel">
+              Community Guidelines
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Please behave responsibly and do not spread misleading
+              information.
+            </p>
+            <p>
+              All the information here should be related to flood in the
+              FloodWise covered area.
+            </p>
+            <p>
+              Violating these guidelines may result in being banned from the
+              forum.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              I Understand
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light text-center py-2">
+      <p>
+        COPYRIGHT 2024 | FLOODWISE X JPS Selangor | FINAL YEAR STUDENT PROJECT.
+      </p>
+    </footer>
+    <!-- Footer end -->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Show warning modal on page load
+        var warningModal = new bootstrap.Modal(
+          document.getElementById("warningModal")
+        );
+        warningModal.show();
+
+        // Function to fetch posts from the API
+        async function fetchPosts() {
+          try {
+            console.log("Fetching posts from API...");
+            const response = await fetch("http://localhost:3000/api/posts");
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            const posts = await response.json();
+            displayPosts(posts);
+          } catch (error) {
+            console.error("Error fetching posts:", error);
+          }
+        }
+
+        // Function to display posts
+        function displayPosts(posts) {
+          const postsContainer = document.getElementById("posts-container");
+          postsContainer.innerHTML = "";
+          posts.forEach((post) => {
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+            postElement.innerHTML = `
+              <p class="post-text">${post.text}</p>
+              <div class="d-flex justify-content-between">
+                <div class="post-likes">Likes: <span>${post.likes}</span></div>
+                <div class="post-date">${new Date(
+                  post.created_at
+                ).toLocaleString()}</div>
+              </div>
+              <button class="like-button btn btn-sm btn-link" onclick="likePost(${
+                post.id
+              })">
+                Like
+              </button>
+            `;
+            postsContainer.appendChild(postElement);
+          });
+        }
+
+        // Function to handle liking a post
+        async function likePost(postId) {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/api/posts/${postId}/like`,
+              {
+                method: "POST",
+              }
+            );
+            const result = await response.json();
+            if (result.success) {
+              fetchPosts(); // Refresh posts
+            } else {
+              console.error("Error liking the post:", result.message);
+            }
+          } catch (error) {
+            console.error("Error liking the post:", error);
+          }
+        }
+
+        // Handle post form submission
+        const postForm = document.getElementById("postForm");
+        postForm.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const postText = document.getElementById("postText").value;
+
+          try {
+            console.log("Creating a new post...");
+            const response = await fetch("http://localhost:3000/api/posts", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ text: postText }),
+            });
+            const result = await response.json();
+            if (result.success) {
+              fetchPosts(); // Refresh posts
+              document.getElementById("postText").value = ""; // Clear the textarea
+              const postModal = bootstrap.Modal.getInstance(
+                document.getElementById("postModal")
+              );
+              postModal.hide(); // Hide the modal
+            } else {
+              console.error("Error creating the post:", result.message);
+            }
+          } catch (error) {
+            console.error("Error creating the post:", error);
+          }
+        });
+
+        // Fetch posts on page load
+        fetchPosts();
+
+        // Sign out functionality
+        const signoutButton = document.getElementById("signoutbutton");
+        signoutButton.addEventListener("click", () => {
+          sessionStorage.removeItem("user-creds");
+          sessionStorage.removeItem("user-info");
+          window.location.href = "login.html";
+        });
+
+        // Check if user is signed in
+        if (!sessionStorage.getItem("user-creds")) {
+          window.location.href = "login.html";
+        }
+
+        // Function to fetch weather data from OpenWeatherMap API
+        function fetchWeather(apiKey) {
+          fetchCurrentWeather(apiKey);
+          fetchWeatherForecast(apiKey);
+        }
+
+        // Function to fetch current weather
+        function fetchCurrentWeather(apiKey) {
+          const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+
+          fetch(currentWeatherUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              const temperature = data.main.temp;
+              const weatherDescription = data.weather[0].description;
+
+              document.getElementById("weatherDescription").innerText =
+                weatherDescription;
+              document.getElementById(
+                "temperature"
+              ).innerText = `${temperature}°C`;
+            })
+            .catch((error) => {
+              console.error("Error fetching current weather data:", error);
+            });
+        }
+
+        // Function to fetch weather forecast
+        function fetchWeatherForecast(apiKey) {
+          const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+
+          fetch(forecastUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              const forecast = data.list;
+              let nextRainTime = null;
+
+              for (let i = 0; i < forecast.length; i++) {
+                const weather = forecast[i];
+                if (weather.weather[0].main.toLowerCase().includes("rain")) {
+                  nextRainTime = new Date(weather.dt * 1000);
+                  break;
+                }
+              }
+
+              const nextRainTimeDiv = document.createElement("div");
+              nextRainTimeDiv.innerHTML = `<p>Next Rain Forecast: ${
+                nextRainTime
+                  ? nextRainTime.toLocaleString()
+                  : "No rain expected"
+              }</p>`;
+              document
+                .getElementById("weather-info")
+                .appendChild(nextRainTimeDiv);
+            })
+            .catch((error) => {
+              console.error("Error fetching weather forecast data:", error);
+            });
+        }
+
+        // Call fetchWeather with your OpenWeatherMap API key
+        fetchWeather("7130d97f6c1cbe08addddddb089fe5cb");
+      });
+    </script>
+  </body>
+</html>
