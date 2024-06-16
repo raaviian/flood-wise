@@ -3,8 +3,11 @@ const mysql = require("mysql");
 const cors = require("cors");
 const path = require("path");
 const express = require("express");
+const nodemailer = require("nodemailer");
 
 const app = express();
+
+// Use CORS middleware
 app.use(
   cors({
     origin: "http://localhost:3000", // Allow only this origin
@@ -24,24 +27,59 @@ app.get("/", (req, res) => {
 });
 
 const MAX_LEVEL = 200; // Maximum water level in cm
+const floodThreshold = 50; // Flood threshold in cm
 
-// MySQL database connection
-const connection = mysql.createConnection({
+// Configure nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Function to send an alert email
+function sendAlertEmail(subject, text, recipient) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: recipient,
+    subject: subject,
+    text: text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending alert email:", error);
+    } else {
+      console.log("Alert email sent:", info.response);
+    }
+  });
+}
+
+// Function to send mass email
+function sendMassEmail(subject, text) {
+  const sql = "SELECT email FROM users"; // Adjust this query based on your table structure
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching emails from database:", err);
+      return;
+    }
+    results.forEach((user) => {
+      sendAlertEmail(subject, text, user.email);
+    });
+  });
+}
+
+// MySQL database connection pool
+const connection = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "iot-floodwise",
+  connectionLimit: 10, // Connection pool limit
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error("Error connecting to MySQL database: " + err.stack);
-    return;
-  }
-  console.log("Connected to MySQL database as id " + connection.threadId);
-});
-
-// Set the connection object on the app
+// Set the connection pool object on the app
 app.set("connection", connection);
 
 // Define route to add phone number
@@ -56,7 +94,7 @@ app.post("/add-phone-number", (req, res) => {
 
   connection.query(sql, [number], (err, result) => {
     if (err) {
-      console.error("Error adding phone number to database: " + err.message);
+      console.error("Error adding phone number to database:", err.message);
       res.status(500).json({ error: "Internal Server Error" });
     } else {
       console.log("Phone number added to database:", number);
@@ -111,10 +149,19 @@ app.post("/store-data", (req, res) => {
     [ultrasonic_reading, water_level_reading],
     (err, result) => {
       if (err) {
-        console.error("Error storing data in database: " + err.message);
+        console.error("Error storing data in database:", err.message);
         res.status(500).json({ error: "Internal Server Error" });
       } else {
         res.status(200).json({ message: "Device is collecting data..." });
+
+        // Check if the water level exceeds the threshold and send an email alert
+        if (water_level_reading > floodThreshold) {
+          // Send mass email
+          sendMassEmail(
+            "Flood Alert!",
+            `The water level has exceeded the threshold. Current level: ${water_level_reading} cm.`
+          );
+        }
       }
     }
   );
@@ -268,6 +315,7 @@ app.get("/button-logs", (req, res) => {
   });
 });
 
+// Get flood reports
 app.get("/flood-reports", (req, res) => {
   const sql = "SELECT * FROM flood_reports ORDER BY report_time DESC";
   connection.query(sql, (err, results) => {

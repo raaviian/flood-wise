@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Weather Monitor</title>
+    <link rel="icon" href="assets/fw-plain.png" type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        background-color: #0a1d37;
+        color: #ffffff;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .navbar {
+        background-color: #ffffff;
+      }
+
+      .navbar-brand,
+      .nav-link {
+        color: #000000 !important;
+      }
+
+      .navbar-toggler {
+        border-color: #000000;
+      }
+
+      .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+      }
+
+      .header-section {
+        padding: 80px 0;
+        text-align: center;
+      }
+
+      .header-section h1 {
+        font-size: 72px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .header-section h2 {
+        font-size: 36px;
+        font-weight: lighter;
+      }
+
+      .content-section {
+        padding: 80px 0;
+        text-align: center;
+      }
+
+      .content-section h1 {
+        font-size: 48px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .content-section p {
+        font-size: 20px;
+        line-height: 1.6;
+        margin: 0 auto;
+        max-width: 800px;
+      }
+
+      footer {
+        background-color: #000000;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px 0;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="homepage.html">
+          <img
+            src="assets/fw-plain.png"
+            alt="Weather Monitor Logo"
+            width="50"
+            height="50"
+            class="navbar-logo"
+          />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="forum.html">Forum</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="weathermonitor.html"
+                >Weather Monitor</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="floodmonitor.html"
+                >Flood Monitoring</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="aboutus.html">About Us</a>
+            </li>
+          </ul>
+          <form class="d-flex">
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              id="signoutbutton"
+            >
+              Sign Out
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="header-section">
+      <h1>Weather Monitor</h1>
+      <h2>Current Weather, Rain Forecast, and Weather History</h2>
+    </div>
+
+    <div class="content-section">
+      <div class="container">
+        <h1>Current Weather</h1>
+        <p id="weatherDescription"></p>
+        <p id="temperature"></p>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <div class="container">
+        <h1>Rain Forecast</h1>
+        <p id="rainForecast"></p>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <div class="container">
+        <h1>Weather History</h1>
+        <table class="table table-striped table-dark">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Temperature (°C)</th>
+              <th>Weather Description</th>
+            </tr>
+          </thead>
+          <tbody id="weatherHistory">
+            <!-- Weather history data will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      <p>COPYRIGHT 2024 | WEATHER MONITOR | FINAL YEAR STUDENT PROJECT.</p>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const apiKey = "7130d97f6c1cbe08addddddb089fe5cb"; // Your actual API key
+
+      // Function to fetch current weather
+      function fetchCurrentWeather(apiKey) {
+        const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+
+        fetch(currentWeatherUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Network response was not ok " + response.statusText
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.main && data.weather) {
+              const temperature = data.main.temp;
+              const weatherDescription = data.weather[0].description;
+
+              document.getElementById("weatherDescription").innerText =
+                weatherDescription;
+              document.getElementById(
+                "temperature"
+              ).innerText = `${temperature}°C`;
+            } else {
+              throw new Error("Invalid data format");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching current weather data:", error);
+          });
+      }
+
+      // Function to fetch rain forecast
+      function fetchRainForecast(apiKey) {
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+
+        fetch(forecastUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Network response was not ok " + response.statusText
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.list) {
+              const forecastList = data.list.filter((forecast) =>
+                forecast.weather.some((weather) => weather.main === "Rain")
+              );
+              const forecastDescriptions = forecastList.map(
+                (forecast) =>
+                  `${forecast.dt_txt}: ${forecast.main.temp}°C, ${forecast.weather[0].description}`
+              );
+
+              document.getElementById("rainForecast").innerText =
+                forecastDescriptions.join("\n");
+            } else {
+              throw new Error("Invalid data format");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching rain forecast data:", error);
+          });
+      }
+
+      // Function to fetch weather history
+      function fetchWeatherHistory(apiKey) {
+        const historyUrl = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=3.0738&lon=101.5183&dt=${
+          Math.floor(Date.now() / 1000) - 86400
+        }&appid=${apiKey}&units=metric`;
+
+        fetch(historyUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Network response was not ok " + response.statusText
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.hourly) {
+              const historyData = data.hourly.map(
+                (hour) =>
+                  `<tr><td>${new Date(
+                    hour.dt * 1000
+                  ).toLocaleString()}</td><td>${hour.temp}°C</td><td>${
+                    hour.weather[0].description
+                  }</td></tr>`
+              );
+
+              document.getElementById("weatherHistory").innerHTML =
+                historyData.join("");
+            } else {
+              throw new Error("Invalid data format");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching weather history data:", error);
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchCurrentWeather(apiKey);
+        fetchRainForecast(apiKey);
+        fetchWeatherHistory(apiKey);
+      });
+    </script>
+  </body>
+</html>

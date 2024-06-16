@@ -255,6 +255,21 @@
       const warningThreshold = 70; // Warning threshold for ultrasonic sensor
       const dangerThreshold = 30; // Danger threshold for ultrasonic sensor
 
+      // Request permission for browser notifications
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission().then((permission) => {
+          if (permission !== "granted") {
+            console.warn("Permission not granted for notifications");
+          }
+        });
+      }
+
+      function showNotification(title, body) {
+        if (Notification.permission === "granted") {
+          new Notification(title, { body });
+        }
+      }
+
       // Initialize circular progress bars
       const ultrasonicProgressBar = new ProgressBar.Circle(
         "#ultrasonicProgressBar",
@@ -372,6 +387,14 @@
             isFloodWarning
               ? `Flood Warning`
               : `Current Water Level: ${waterLevelValue} cm`;
+
+          // Show notification if water level exceeds the threshold
+          if (isFloodWarning) {
+            showNotification(
+              "Flood Alert!",
+              `Water level is ${waterLevelValue} cm, exceeding the threshold!`
+            );
+          }
         }, 3000);
       }
 
