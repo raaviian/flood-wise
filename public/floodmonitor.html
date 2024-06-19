@@ -402,9 +402,7 @@
 
       async function fetchRealtimeData() {
         try {
-          const response = await fetch(
-            "http://sql12.freesqldatabase.com:3000/realtime-data"
-          );
+          const response = await fetch("68.183.189.122/realtime-data");
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -425,9 +423,7 @@
 
       async function fetchWaterLevelHistory() {
         try {
-          const response = await fetch(
-            "http://sql12.freesqldatabase.com:3000/latest-water-levels"
-          );
+          const response = await fetch("68.183.189.122/latest-water-levels");
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -493,7 +489,7 @@
       }
 
       function checkDisplayStatus() {
-        fetch("http://sql12.freesqldatabase.com:3000/display-status")
+        fetch("68.183.189.122/display-status")
           .then((response) => {
             if (!response.ok) {
               throw new Error(

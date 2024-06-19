@@ -175,7 +175,7 @@
           const phoneNumber = document.getElementById("phoneNumber").value;
 
           // Send POST request to backend to add phone number
-          fetch("/add-phone-number", {
+          fetch("68.183.189.122/add-phone-number", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -201,7 +201,7 @@
         });
 
       function loadPhoneNumbers() {
-        fetch("/phone-numbers")
+        fetch("68.183.189.122/phone-numbers")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -236,7 +236,7 @@
       }
 
       function deletePhoneNumber(id) {
-        fetch(`/phone-numbers/${id}`, {
+        fetch(`68.183.189.122/phone-numbers/${id}`, {
           method: "DELETE",
         })
           .then((response) => {
@@ -259,7 +259,7 @@
 
       function toggleDisplay() {
         console.log("Toggling display...");
-        fetch("/toggle-display", {
+        fetch("68.183.189.122/toggle-display", {
           method: "POST",
         })
           .then((response) => {
@@ -285,7 +285,7 @@
       }
 
       function loadActivityLog() {
-        fetch("/button-logs")
+        fetch("68.183.189.122/button-logs")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -314,7 +314,7 @@
       }
 
       function loadFloodReports() {
-        fetch("/flood-reports")
+        fetch("68.183.189.122/flood-reports")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
