@@ -304,7 +304,9 @@
         async function fetchPosts() {
           try {
             console.log("Fetching posts from API...");
-            const response = await fetch("http://localhost:3000/api/posts");
+            const response = await fetch(
+              "http://sql12.freesqldatabase.com:3000/api/posts"
+            );
             if (!response.ok) {
               throw new Error("Network response was not ok");
             }
@@ -344,7 +346,7 @@
         async function likePost(postId) {
           try {
             const response = await fetch(
-              `http://localhost:3000/api/posts/${postId}/like`,
+              `http://sql12.freesqldatabase.com:3000/api/posts/${postId}/like`,
               {
                 method: "POST",
               }
@@ -368,13 +370,16 @@
 
           try {
             console.log("Creating a new post...");
-            const response = await fetch("http://localhost:3000/api/posts", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ text: postText }),
-            });
+            const response = await fetch(
+              "http://sql12.freesqldatabase.com:3000/api/posts",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ text: postText }),
+              }
+            );
             const result = await response.json();
             if (result.success) {
               fetchPosts(); // Refresh posts
