@@ -4,7 +4,7 @@ const app = require("./app"); // Import app.js
 const WebSocket = require("ws");
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || "localhost"; // Read HOST from environment variables
+const HOST = process.env.HOST || "0.0.0.0"; // Read HOST from environment variables
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
