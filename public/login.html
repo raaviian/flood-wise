@@ -96,6 +96,23 @@
       .login-box .google-btn img {
         margin-right: 10px;
       }
+
+      .form-control {
+        color: #000; /* Set input text color to black */
+      }
+
+      .form-floating .form-control::placeholder {
+        color: #aaa !important; /* Set placeholder color to light gray */
+        opacity: 1; /* Ensure the color is applied */
+      }
+
+      .form-floating .form-control:-ms-input-placeholder {
+        color: #aaa !important; /* IE */
+      }
+
+      .form-floating .form-control::-ms-input-placeholder {
+        color: #aaa !important; /* Edge */
+      }
     </style>
   </head>
   <body>
@@ -303,18 +320,30 @@
       };
 
       const ForgotPassword = () => {
-        sendPasswordResetEmail(auth, emailInp.value)
+        const email = emailInp.value.trim();
+        if (email === "") {
+          document.getElementById("forgotPasswordMessage").innerText =
+            "Type your email inside the email box first.";
+          const forgotPasswordModal = new bootstrap.Modal(
+            document.getElementById("forgotPasswordModal")
+          );
+          forgotPasswordModal.show();
+          return;
+        }
+
+        sendPasswordResetEmail(auth, email)
           .then(() => {
             document.getElementById("forgotPasswordMessage").innerText =
-              "Reset password link has been sent to your email";
+              "Reset password link has been sent to your email.";
             const forgotPasswordModal = new bootstrap.Modal(
               document.getElementById("forgotPasswordModal")
             );
             forgotPasswordModal.show();
           })
           .catch((error) => {
+            console.error("Error sending password reset email:", error);
             document.getElementById("forgotPasswordMessage").innerText =
-              "Type your email inside the email box first.";
+              "Error sending password reset email. Please try again.";
             const forgotPasswordModal = new bootstrap.Modal(
               document.getElementById("forgotPasswordModal")
             );
