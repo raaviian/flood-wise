@@ -1,11 +1,33 @@
+const express = require("express");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const cors = require("cors");
 const path = require("path");
-const express = require("express");
 const nodemailer = require("nodemailer");
+const { body, validationResult } = require("express-validator");
+const multer = require("multer");
+const fs = require("fs");
+const WebSocket = require("ws");
 
 const app = express();
+const server = require("http").createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, "public", "uploads");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // Use CORS middleware
 app.use(
@@ -15,11 +37,39 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
   })
 );
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files from the 'public' directory
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, "public")));
+// WebSocket connection
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+
+  ws.on("message", (message) => {
+    console.log("Received:", message);
+  });
+
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
+
+  // Sending a welcome message as JSON
+  ws.send(
+    JSON.stringify({
+      type: "welcome",
+      message: "Welcome to the WebSocket server",
+    })
+  );
+});
+
+function broadcastData(data) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: "data", ...data }));
+    }
+  });
+}
 
 // Basic route for the home page
 app.get("/", (req, res) => {
@@ -76,7 +126,7 @@ const connection = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 3306,
   connectionLimit: 10, // Connection pool limit
 });
 
@@ -84,15 +134,13 @@ const connection = mysql.createPool({
 app.set("connection", connection);
 
 // Define route to add phone number
-app.post("/add-phone-number", (req, res) => {
-  const { number } = req.body;
-  if (!number) {
-    console.error("Invalid phone number received");
-    return res.status(400).json({ error: "Invalid phone number" });
+app.post("/add-phone-number", [body("number").isMobilePhone()], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-
+  const { number } = req.body;
   const sql = `INSERT INTO phone_numbers (number) VALUES (?)`;
-
   connection.query(sql, [number], (err, result) => {
     if (err) {
       console.error("Error adding phone number to database:", err.message);
@@ -138,37 +186,30 @@ app.delete("/phone-numbers/:id", (req, res) => {
 // Define route to store sensor data
 app.post("/store-data", (req, res) => {
   const { ultrasonic_reading, water_level_reading } = req.body;
-  if (!ultrasonic_reading || !water_level_reading) {
-    console.error("Invalid data received");
-    return res.status(400).json({ error: "Invalid data" });
+  console.log(req.body); // Log the request body for debugging
+
+  if (
+    typeof ultrasonic_reading !== "number" ||
+    typeof water_level_reading !== "number"
+  ) {
+    return res.status(400).json({ error: "Invalid data format" });
   }
 
   const sql = `INSERT INTO sensor_data (ultrasonic_reading, water_level_reading, timestamp) VALUES (?, ?, NOW())`;
-
   connection.query(
     sql,
     [ultrasonic_reading, water_level_reading],
     (err, result) => {
       if (err) {
         console.error("Error storing data in database:", err.message);
-        res.status(500).json({ error: "Internal Server Error" });
-      } else {
-        res.status(200).json({ message: "Device is collecting data..." });
-
-        // Check if the water level exceeds the threshold and send an email alert
-        if (water_level_reading > floodThreshold) {
-          // Send mass email
-          sendMassEmail(
-            "Flood Alert!",
-            `The water level has exceeded the threshold. Current level: ${water_level_reading} cm.`
-          );
-        }
+        return res.status(500).json({ error: "Internal Server Error" });
       }
+      res.status(200).json({ message: "Data stored successfully" });
+      broadcastData({ ultrasonic_reading, water_level_reading }); // Broadcast data to WebSocket clients
     }
   );
 });
 
-// Route to get realtime sensor data
 app.get("/realtime-data", (req, res) => {
   console.log("GET /realtime-data called");
   const sql = "SELECT * FROM sensor_data ORDER BY timestamp DESC LIMIT 1";
@@ -191,7 +232,6 @@ app.get("/realtime-data", (req, res) => {
 
 // Route to toggle data display
 let displayData = true;
-
 app.post("/toggle-display", (req, res) => {
   displayData = !displayData;
   const activity = `Display turned ${displayData ? "ON" : "OFF"}`;
@@ -247,25 +287,33 @@ app.get("/api/posts", (req, res) => {
   });
 });
 
-// Create a new post
-app.post("/api/posts", (req, res) => {
-  const { text } = req.body;
-  console.log("POST /api/posts called, text:", text);
-  if (!text) {
-    return res.status(400).json({ error: "Post text is required" });
-  }
-
-  const sql =
-    "INSERT INTO posts (text, likes, created_at) VALUES (?, 0, NOW())";
-  connection.query(sql, [text], (err, result) => {
-    if (err) {
-      console.error("Error creating post:", err);
-      res.status(500).json({ error: "Internal Server Error" });
-    } else {
-      res.json({ success: true });
+// Create a new post with image upload
+app.post(
+  "/api/posts",
+  upload.single("image"),
+  [body("text").notEmpty()],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  });
-});
+    const { text } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    console.log("POST /api/posts called, text:", text);
+
+    const sql =
+      "INSERT INTO posts (text, image_url, likes, created_at) VALUES (?, ?, 0, NOW())";
+    connection.query(sql, [text, imageUrl], (err, result) => {
+      if (err) {
+        console.error("Error creating post:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      } else {
+        res.json({ success: true });
+      }
+    });
+  }
+);
 
 // Like a post
 app.post("/api/posts/:id/like", (req, res) => {
@@ -283,24 +331,33 @@ app.post("/api/posts/:id/like", (req, res) => {
 });
 
 // Add this block to handle flood reports
-app.post("/api/flood-report", (req, res) => {
-  const { name, location, contact } = req.body;
-  console.log("POST /api/flood-report called, data:", req.body);
-  if (!name || !location || !contact) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  const sql =
-    "INSERT INTO flood_reports (name, location, contact, report_time) VALUES (?, ?, ?, NOW())";
-  connection.query(sql, [name, location, contact], (err, result) => {
-    if (err) {
-      console.error("Error creating flood report:", err);
-      res.status(500).json({ error: "Internal Server Error" });
-    } else {
-      res.json({ success: true });
+app.post(
+  "/api/flood-report",
+  [
+    body("name").notEmpty(),
+    body("location").notEmpty(),
+    body("contact").isMobilePhone(),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  });
-});
+    const { name, location, contact } = req.body;
+    console.log("POST /api/flood-report called, data:", req.body);
+
+    const sql =
+      "INSERT INTO flood_reports (name, location, contact, report_time) VALUES (?, ?, ?, NOW())";
+    connection.query(sql, [name, location, contact], (err, result) => {
+      if (err) {
+        console.error("Error creating flood report:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      } else {
+        res.json({ success: true });
+      }
+    });
+  }
+);
 
 // Define route to get button logs
 app.get("/button-logs", (req, res) => {
@@ -330,3 +387,9 @@ app.get("/flood-reports", (req, res) => {
 });
 
 module.exports = app;
+
+// Start the server
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

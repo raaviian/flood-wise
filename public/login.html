@@ -31,36 +31,25 @@
         flex: 1;
         justify-content: center;
         align-items: center;
+        padding: 20px;
       }
 
       .login-box {
         display: flex;
+        flex-direction: column;
         background: #212431;
         border-radius: 12px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
         overflow: hidden;
-        width: 1000px;
-        max-width: 100%;
-        height: 600px;
-      }
-
-      .login-box .left {
-        padding: 40px;
-        flex: 1.5;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-
-      .login-box .right {
-        background: url("assets/bg-3.jpg") no-repeat center center;
-        background-size: cover;
-        flex: 1;
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
       }
 
       .login-box h2 {
         margin-bottom: 20px;
         font-size: 32px;
+        text-align: center;
       }
 
       .login-box form .form-floating {
@@ -74,6 +63,7 @@
         font-size: 16px;
         cursor: pointer;
         transition: background-color 0.3s;
+        width: 100%;
       }
 
       .login-box form .btn:hover {
@@ -91,6 +81,7 @@
         text-decoration: none;
         font-weight: bold;
         margin-bottom: 20px;
+        width: 100%;
       }
 
       .login-box .google-btn img {
@@ -106,12 +97,46 @@
         opacity: 1; /* Ensure the color is applied */
       }
 
+      .form-floating label {
+        color: #aaa !important; /* Set label color to light gray */
+      }
+
       .form-floating .form-control:-ms-input-placeholder {
         color: #aaa !important; /* IE */
       }
 
       .form-floating .form-control::-ms-input-placeholder {
         color: #aaa !important; /* Edge */
+      }
+
+      #forgotpasslabel {
+        cursor: pointer;
+        margin-top: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #5a67d8;
+      }
+
+      @media (min-width: 768px) {
+        .login-box {
+          flex-direction: row;
+          height: 600px;
+        }
+
+        .login-box .left {
+          padding: 40px;
+          flex: 1.5;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .login-box .right {
+          background: url("assets/bg-3.jpg") no-repeat center center;
+          background-size: cover;
+          flex: 1;
+        }
       }
     </style>
   </head>
@@ -123,13 +148,7 @@
           <p>Sign in to access the FloodWise dashboard</p>
           <form id="MainForm" class="w-100">
             <div class="form-floating mb-3">
-              <input
-                type="email"
-                class="form-control"
-                id="emailInp"
-                placeholder="name@example.com"
-                required
-              />
+              <input type="email" class="form-control" id="emailInp" required />
               <label for="emailInp">Email address</label>
             </div>
             <div class="form-floating mb-3">
@@ -137,28 +156,16 @@
                 type="password"
                 class="form-control"
                 id="passwordInp"
-                placeholder="Password"
                 required
               />
               <label for="passwordInp">Password</label>
             </div>
-            <label
-              id="forgotpasslabel"
-              style="
-                cursor: pointer;
-                margin-top: 10px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                color: #5a67d8;
-              "
-              >Forgot Password</label
-            >
-            <button type="submit" class="btn">Login</button>
-            <a href="register.html" class="btn">Register</a>
+            <label id="forgotpasslabel">Forgot Password</label>
+            <button type="submit" class="btn mt-3">Login</button>
+            <a href="register.html" class="btn mt-3">Register</a>
           </form>
         </div>
-        <div class="right">
+        <div class="right d-none d-md-block">
           <!-- Background image goes here -->
         </div>
       </div>

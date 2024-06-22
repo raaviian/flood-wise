@@ -20,7 +20,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background: rgb(18, 39, 90);
         background: rgb(180, 203, 215);
@@ -36,11 +35,9 @@
         display: flex;
         flex-direction: column;
       }
-
       .container {
         flex: 1;
       }
-
       .card {
         backdrop-filter: blur(16px) saturate(180%);
         -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -48,7 +45,6 @@
         border-radius: 0px;
         border: 1px solid rgba(209, 213, 219, 0.3);
       }
-
       .card-header {
         background: rgb(18, 39, 90);
         background: linear-gradient(
@@ -60,18 +56,15 @@
         color: white;
         font-weight: bold;
       }
-
       .progress-circle {
         width: 100px;
         height: 100px;
         margin: auto;
         position: relative;
       }
-
       .progress-circle text {
         font-size: 1.5rem;
       }
-
       .navbar,
       .footer {
         backdrop-filter: blur(14px) saturate(100%);
@@ -79,7 +72,6 @@
         background-color: rgba(255, 255, 255, 0.85);
         border: 1px solid rgba(209, 213, 219, 0.3);
       }
-
       footer {
         position: relative;
       }
@@ -402,14 +394,14 @@
 
       async function fetchRealtimeData() {
         try {
-          const response = await fetch("68.183.189.122/realtime-data");
+          const response = await fetch("http://localhost:3000/realtime-data");
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
 
           // Update readings
-          updateReadings(data.progressUltrasonic, data.progressWaterLevel);
+          updateReadings(data.ultrasonic_reading, data.water_level_reading);
         } catch (error) {
           console.error("Error fetching real-time data:", error);
           document.getElementById(
@@ -423,7 +415,9 @@
 
       async function fetchWaterLevelHistory() {
         try {
-          const response = await fetch("68.183.189.122/latest-water-levels");
+          const response = await fetch(
+            "http://localhost:3000/latest-water-levels"
+          );
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -489,7 +483,7 @@
       }
 
       function checkDisplayStatus() {
-        fetch("68.183.189.122/display-status")
+        fetch("http://localhost:3000/display-status")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -626,15 +620,48 @@
         document.body.removeChild(link);
       }
 
+      // WebSocket connection
+      const ws = new WebSocket("ws://localhost:3000");
+
+      ws.onopen = () => {
+        console.log("WebSocket connection established");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("WebSocket message received:", data);
+          // Handle the incoming WebSocket data
+          if (data.type === "data") {
+            if (
+              data.ultrasonic_reading !== undefined &&
+              data.water_level_reading !== undefined
+            ) {
+              updateReadings(data.ultrasonic_reading, data.water_level_reading);
+            }
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket connection closed");
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
       // Initial fetch
       fetchRealtimeData();
       fetchWaterLevelHistory();
       checkDisplayStatus();
 
       // Periodically fetch updates
-      setInterval(fetchRealtimeData, 5000);
+      setInterval(fetchRealtimeData, 3000);
       setInterval(fetchWaterLevelHistory, 60000);
-      setInterval(checkDisplayStatus, 5000);
+      setInterval(checkDisplayStatus, 3000);
     </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

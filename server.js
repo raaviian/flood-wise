@@ -4,7 +4,7 @@ const app = require("./app"); // Import app.js
 const WebSocket = require("ws");
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || "0.0.0.0"; // Read HOST from environment variables
+const HOST = process.env.HOST || "localhost"; // Read HOST from environment variables
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -18,10 +18,6 @@ wss.on("connection", (ws) => {
   ws.send("Welcome to the WebSocket server!");
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`Server running at http://${HOST}:${PORT}`);
-});
-
 // Gracefully close the database connection when the server stops
 process.on("SIGINT", () => {
   const connection = app.get("connection");
@@ -33,4 +29,11 @@ process.on("SIGINT", () => {
     }
     process.exit(err ? 1 : 0);
   });
+  wss.close(() => {
+    console.log("WebSocket server closed");
+  });
+});
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });

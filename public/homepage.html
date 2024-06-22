@@ -249,7 +249,6 @@
       let userCreds = JSON.parse(sessionStorage.getItem("user-creds"));
       let userInfo = JSON.parse(sessionStorage.getItem("user-info"));
 
-      let MsgHead = document.getElementById("msg");
       let GreetHead = document.getElementById("greet");
       let SignoutBtn = document.getElementById("signoutbutton");
 
@@ -352,7 +351,7 @@
 
           try {
             const response = await fetch(
-              "http://sql12.freesqldatabase.com:3000/api/flood-report",
+              "http://localhost:3000/api/flood-report",
               {
                 method: "POST",
                 headers: {

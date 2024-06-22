@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Monitor</title>
     <link rel="icon" href="assets/fw-plain.png" type="image/x-icon" />
     <link
@@ -10,6 +10,11 @@
       rel="stylesheet"
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      crossorigin=""
     />
     <style>
       body {
@@ -43,32 +48,42 @@
       }
 
       .header-section h1 {
-        font-size: 72px;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-
-      .header-section h2 {
-        font-size: 36px;
-        font-weight: lighter;
-      }
-
-      .content-section {
-        padding: 80px 0;
-        text-align: center;
-      }
-
-      .content-section h1 {
         font-size: 48px;
         font-weight: bold;
         margin-bottom: 20px;
       }
 
-      .content-section p {
-        font-size: 20px;
-        line-height: 1.6;
-        margin: 0 auto;
-        max-width: 800px;
+      .header-section h2 {
+        font-size: 24px;
+        font-weight: lighter;
+      }
+
+      .dashboard {
+        padding: 40px 0;
+      }
+
+      .card {
+        background-color: #212529;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+      }
+
+      .card-header {
+        background-color: #343a40;
+        border-bottom: none;
+        border-radius: 10px 10px 0 0;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .card-body {
+        padding: 20px;
+      }
+
+      #map {
+        height: 300px;
+        margin-top: 15px;
       }
 
       footer {
@@ -80,7 +95,6 @@
       }
     </style>
   </head>
-
   <body>
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
       <div class="container">
@@ -141,36 +155,81 @@
       <h2>Current Weather, Rain Forecast, and Weather History</h2>
     </div>
 
-    <div class="content-section">
-      <div class="container">
-        <h1>Current Weather</h1>
-        <p id="weatherDescription"></p>
-        <p id="temperature"></p>
+    <div class="container dashboard">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-header">Rain Forecast</div>
+            <div class="card-body">
+              <table class="table table-striped table-dark">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Temperature (°C)</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="rainForecast">
+                  <!-- Rain forecast data will be inserted here -->
+                </tbody>
+              </table>
+              <nav aria-label="Rain forecast pagination">
+                <ul
+                  class="pagination justify-content-center"
+                  id="forecastPagination"
+                >
+                  <!-- Pagination controls will be inserted here -->
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 offset-md-2">
+          <div class="card mb-4">
+            <div class="card-header">Current Weather</div>
+            <div class="card-body">
+              <p id="weatherDescription"></p>
+              <p id="temperature"></p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="content-section">
-      <div class="container">
-        <h1>Rain Forecast</h1>
-        <p id="rainForecast"></p>
-      </div>
-    </div>
-
-    <div class="content-section">
-      <div class="container">
-        <h1>Weather History</h1>
-        <table class="table table-striped table-dark">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Temperature (°C)</th>
-              <th>Weather Description</th>
-            </tr>
-          </thead>
-          <tbody id="weatherHistory">
-            <!-- Weather history data will be inserted here -->
-          </tbody>
-        </table>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-header">Weather History</div>
+            <div class="card-body">
+              <table class="table table-striped table-dark">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Temperature (°C)</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="weatherHistory">
+                  <!-- Weather history data will be inserted here -->
+                </tbody>
+              </table>
+              <nav aria-label="Weather history pagination">
+                <ul
+                  class="pagination justify-content-center"
+                  id="historyPagination"
+                >
+                  <!-- Pagination controls will be inserted here -->
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card mb-4">
+            <div class="card-header">Map</div>
+            <div class="card-body">
+              <div id="map"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -183,12 +242,21 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      crossorigin=""
+    ></script>
     <script>
-      const apiKey = "7130d97f6c1cbe08addddddb089fe5cb"; // Your actual API key
+      const apiKey = "26cc5922ac5344808a8164643231812"; // Your actual API key
+      const itemsPerPage = 5;
+      let weatherHistoryData = [];
+      let rainForecastData = [];
+      let currentPage = 1;
+      let forecastPage = 1;
 
       // Function to fetch current weather
       function fetchCurrentWeather(apiKey) {
-        const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+        const currentWeatherUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=Shah%20Alam&aqi=no`;
 
         fetch(currentWeatherUrl)
           .then((response) => {
@@ -200,9 +268,9 @@
             return response.json();
           })
           .then((data) => {
-            if (data.main && data.weather) {
-              const temperature = data.main.temp;
-              const weatherDescription = data.weather[0].description;
+            if (data.current) {
+              const temperature = data.current.temp_c;
+              const weatherDescription = data.current.condition.text;
 
               document.getElementById("weatherDescription").innerText =
                 weatherDescription;
@@ -220,7 +288,7 @@
 
       // Function to fetch rain forecast
       function fetchRainForecast(apiKey) {
-        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=Shah%20Alam&appid=${apiKey}&units=metric`;
+        const forecastUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=Shah%20Alam&days=7`;
 
         fetch(forecastUrl)
           .then((response) => {
@@ -232,17 +300,14 @@
             return response.json();
           })
           .then((data) => {
-            if (data.list) {
-              const forecastList = data.list.filter((forecast) =>
-                forecast.weather.some((weather) => weather.main === "Rain")
-              );
-              const forecastDescriptions = forecastList.map(
-                (forecast) =>
-                  `${forecast.dt_txt}: ${forecast.main.temp}°C, ${forecast.weather[0].description}`
-              );
+            if (data.forecast && data.forecast.forecastday.length > 0) {
+              rainForecastData = data.forecast.forecastday.map((day) => ({
+                date: day.date,
+                temperature: day.day.avgtemp_c,
+                description: day.day.condition.text,
+              }));
 
-              document.getElementById("rainForecast").innerText =
-                forecastDescriptions.join("\n");
+              displayRainForecast();
             } else {
               throw new Error("Invalid data format");
             }
@@ -252,47 +317,155 @@
           });
       }
 
+      // Function to display rain forecast
+      function displayRainForecast() {
+        const startIndex = (forecastPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedData = rainForecastData.slice(startIndex, endIndex);
+
+        const forecastTable = document.getElementById("rainForecast");
+        forecastTable.innerHTML = "";
+
+        paginatedData.forEach((day) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+          <td>${day.date}</td>
+          <td>${day.temperature}°C</td>
+          <td>${day.description}</td>
+        `;
+          forecastTable.appendChild(row);
+        });
+
+        // Display pagination controls
+        const paginationElement = document.getElementById("forecastPagination");
+        paginationElement.innerHTML = "";
+
+        const totalPages = Math.ceil(rainForecastData.length / itemsPerPage);
+        for (let i = 1; i <= totalPages; i++) {
+          const li = document.createElement("li");
+          li.classList.add("page-item");
+          li.innerHTML = `<a class="page-link" href="#" onclick="changeForecastPage(${i})">${i}</a>`;
+          if (i === forecastPage) {
+            li.classList.add("active");
+          }
+          paginationElement.appendChild(li);
+        }
+      }
+
       // Function to fetch weather history
       function fetchWeatherHistory(apiKey) {
-        const historyUrl = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=3.0738&lon=101.5183&dt=${
-          Math.floor(Date.now() / 1000) - 86400
-        }&appid=${apiKey}&units=metric`;
+        const historyPromises = [];
+        for (let i = 0; i < 7; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const formattedDate = date.toISOString().split("T")[0];
+          const historyUrl = `https://api.weatherapi.com/v1/history.json?key=${apiKey}&q=Shah%20Alam&dt=${formattedDate}`;
+          historyPromises.push(
+            fetch(historyUrl).then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  "Network response was not ok " + response.statusText
+                );
+              }
+              return response.json();
+            })
+          );
+        }
 
-        fetch(historyUrl)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Network response was not ok " + response.statusText
-              );
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (data.hourly) {
-              const historyData = data.hourly.map(
-                (hour) =>
-                  `<tr><td>${new Date(
-                    hour.dt * 1000
-                  ).toLocaleString()}</td><td>${hour.temp}°C</td><td>${
-                    hour.weather[0].description
-                  }</td></tr>`
-              );
+        Promise.all(historyPromises)
+          .then((responses) => {
+            weatherHistoryData = responses.map((data) => {
+              if (data.forecast && data.forecast.forecastday.length > 0) {
+                const day = data.forecast.forecastday[0];
+                return {
+                  date: day.date,
+                  temperature: day.day.avgtemp_c,
+                  description: day.day.condition.text,
+                };
+              } else {
+                throw new Error("Invalid data format");
+              }
+            });
 
-              document.getElementById("weatherHistory").innerHTML =
-                historyData.join("");
-            } else {
-              throw new Error("Invalid data format");
-            }
+            displayWeatherHistory();
           })
           .catch((error) => {
             console.error("Error fetching weather history data:", error);
           });
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
+      // Function to display weather history
+      function displayWeatherHistory() {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedData = weatherHistoryData.slice(startIndex, endIndex);
+
+        const historyTable = document.getElementById("weatherHistory");
+        historyTable.innerHTML = "";
+
+        paginatedData.forEach((day) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+          <td>${day.date}</td>
+          <td>${day.temperature}°C</td>
+          <td>${day.description}</td>
+        `;
+          historyTable.appendChild(row);
+        });
+
+        // Display pagination controls
+        const paginationElement = document.getElementById("historyPagination");
+        paginationElement.innerHTML = "";
+
+        const totalPages = Math.ceil(weatherHistoryData.length / itemsPerPage);
+        for (let i = 1; i <= totalPages; i++) {
+          const li = document.createElement("li");
+          li.classList.add("page-item");
+          li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+          if (i === currentPage) {
+            li.classList.add("active");
+          }
+          paginationElement.appendChild(li);
+        }
+      }
+
+      // Function to change weather history page
+      function changePage(page) {
+        currentPage = page;
+        displayWeatherHistory();
+      }
+
+      // Function to change rain forecast page
+      function changeForecastPage(page) {
+        forecastPage = page;
+        displayRainForecast();
+      }
+
+      // Initialize the weather monitor
+      function initWeatherMonitor() {
         fetchCurrentWeather(apiKey);
         fetchRainForecast(apiKey);
         fetchWeatherHistory(apiKey);
+        initMap();
+      }
+
+      // Function to initialize Leaflet map
+      function initMap() {
+        const map = L.map("map").setView([3.0738, 101.5183], 10);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 18,
+        }).addTo(map);
+
+        L.marker([3.0738, 101.5183])
+          .addTo(map)
+          .bindPopup("Shah Alam")
+          .openPopup();
+      }
+
+      // Call init function when the document is ready
+      document.addEventListener("DOMContentLoaded", () => {
+        initWeatherMonitor();
       });
     </script>
   </body>

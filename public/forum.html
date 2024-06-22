@@ -12,95 +12,120 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" type="text/css" href="styling/font.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
     <style>
       body {
-        background: rgb(58, 162, 180);
-        background: rgb(38, 88, 207);
-        background-color: #0a1d37;
+        background: #f5f5f5;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
       .post {
-        background-color: white;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
         border-radius: 10px;
         padding: 15px;
-        margin: 10px 0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
       }
       .post-text {
         font-size: 16px;
-        color: #333;
+        color: #333333;
+        margin-bottom: 10px;
       }
       .post-likes {
         font-size: 14px;
-        color: #555;
+        color: #555555;
+        flex: 1;
+        text-align: left;
       }
       .post-date {
         font-size: 12px;
-        color: #999;
+        color: #999999;
+        flex: 1;
+        text-align: center;
       }
       .like-button {
         cursor: pointer;
         color: #007bff;
+        border: none;
+        background: none;
+        flex: 1;
+        text-align: right;
       }
       .like-button:hover {
         color: #0056b3;
       }
-      .modal-dialog-centered {
-        display: flex;
-        align-items: center;
-        min-height: calc(100vh - 1rem);
-      }
-      .navbar {
-        background-color: white;
-      }
-      .navbar-brand img {
-        height: 50px;
-      }
-      .navbar-nav .nav-link {
-        color: #000000;
-      }
-      .navbar-nav .nav-link:hover {
-        color: #555555;
-      }
-      .posts-container {
-        margin: 0 auto;
-        max-width: 800px;
+      .post img {
+        max-width: 200px; /* Set the maximum width of the image */
+        max-height: 200px; /* Set the maximum height of the image */
+        display: block;
+        margin: 10px 0;
       }
       .right-container {
-        background-color: #2f3136;
-        color: #b9bbbe;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
         border-radius: 10px;
         padding: 15px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .right-container h6 {
+        margin-top: 0;
+        color: #333333;
+      }
+      .right-container p {
+        color: #555555;
       }
       .right-container a {
-        color: #00aff4;
+        color: #007bff;
         text-decoration: none;
       }
       .right-container a:hover {
         text-decoration: underline;
       }
       .weather {
-        background-color: #222;
-        border-radius: 10px;
-        padding: 15px;
         text-align: center;
       }
-      .weather-description {
-        color: #b9bbbe;
+      .weather h5 {
+        color: #333333;
+      }
+      .weather-description,
+      .temperature {
+        color: #555555;
         font-size: 14px;
       }
-      .temperature {
-        color: #b9bbbe;
-        font-size: 16px;
+      #map {
+        height: 300px;
+        width: 100%;
+        margin-top: 15px;
+      }
+      footer {
+        background-color: #333333;
+        color: #ffffff;
+        padding: 10px 0;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
       }
     </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
       <div class="container">
         <a class="navbar-brand" href="homepage.html">
-          <img src="assets/fw-plain.png" alt="FloodWise Logo" />
+          <img
+            src="assets/fw-plain.png"
+            alt="FloodWise Logo"
+            width="50"
+            height="50"
+            class="navbar-logo"
+          />
         </a>
         <button
           class="navbar-toggler"
@@ -145,10 +170,10 @@
       </div>
     </nav>
 
-    <div class="container mt-3">
+    <div class="container mt-5 pt-3">
       <div class="row">
         <div class="col-md-8">
-          <div id="posts-container"></div>
+          <div id="posts-container" class="posts-container"></div>
         </div>
         <div class="col-md-4">
           <div class="right-container mt-2">
@@ -159,36 +184,18 @@
             >
               Create Post
             </button>
-            <div class="bg-dark text-light p-3 rounded">
-              <div class="weather">
-                <h5>Weather</h5>
-                <div
-                  id="weather-info"
-                  class="d-flex flex-column align-items-center"
-                >
-                  <div
-                    id="weatherDescription"
-                    class="weather-description"
-                  ></div>
-                  <div id="temperature" class="temperature"></div>
-                </div>
+            <div id="comment-of-the-day"></div>
+            <div id="map"></div>
+            <div class="weather bg-light p-3 rounded mb-3">
+              <h5>Weather</h5>
+              <div
+                id="weather-info"
+                class="d-flex flex-column align-items-center"
+              >
+                <div id="weatherDescription" class="weather-description"></div>
+                <div id="temperature" class="temperature"></div>
               </div>
             </div>
-            <div class="bg-dark text-light align-items-center"></div>
-            <div class="mt-3">
-              <h6>Comment of the day</h6>
-              <a href="#">Top 100</a>
-              <p>
-                you suddenly travel back 100,000 years to a cave that will
-                eventually be discovered by archaeologists, what do you write on
-                the wall to mess with them?
-              </p>
-              <p><strong>NolmNot</strong> - 23 hours ago - +2.8K</p>
-              <p>How to ruin an entire timeline</p>
-            </div>
-            <hr />
-            <div class="d-flex justify-content-between"></div>
-            <p class="text-center mt-3">Mix Inc © 2022 . All rights reserved</p>
           </div>
         </div>
       </div>
@@ -223,6 +230,9 @@
                   placeholder="What's on your mind?"
                   required
                 ></textarea>
+              </div>
+              <div class="mb-3">
+                <input type="file" class="form-control" id="postImage" />
               </div>
               <button type="submit" class="btn btn-primary">Post</button>
             </form>
@@ -292,7 +302,89 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+      async function fetchPosts() {
+        try {
+          console.log("Fetching posts from API...");
+          const response = await fetch("http://localhost:3000/api/posts");
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const posts = await response.json();
+          displayPosts(posts);
+          displayTopPost(posts);
+        } catch (error) {
+          console.error("Error fetching posts:", error);
+        }
+      }
+
+      function displayPosts(posts) {
+        const postsContainer = document.getElementById("posts-container");
+        postsContainer.innerHTML = "";
+        posts.forEach((post) => {
+          const postElement = document.createElement("div");
+          postElement.classList.add("post");
+          postElement.innerHTML = `
+          <p class="post-text">${post.text}</p>
+          ${
+            post.image_url
+              ? `<img src="${post.image_url}" alt="Post Image" class="img-fluid post-img"/>`
+              : ""
+          }
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="post-likes">Likes: <span>${post.likes}</span></div>
+            <div class="post-date">${new Date(
+              post.created_at
+            ).toLocaleString()}</div>
+            <button class="like-button" onclick="likePost(${post.id})">
+              Like
+            </button>
+          </div>
+        `;
+          postsContainer.appendChild(postElement);
+        });
+      }
+
+      function displayTopPost(posts) {
+        const topPostContainer = document.getElementById("comment-of-the-day");
+        topPostContainer.innerHTML = "";
+        if (posts.length > 0) {
+          const topPost = posts.reduce((prev, current) =>
+            prev.likes > current.likes ? prev : current
+          );
+          const topPostElement = document.createElement("div");
+          topPostElement.innerHTML = `
+          <h6>Comment of the day</h6>
+          <a href="#">Top Post</a>
+          <p>${topPost.text}</p>
+          <p><strong>Likes: ${topPost.likes}</strong> - ${new Date(
+            topPost.created_at
+          ).toLocaleString()}</p>
+        `;
+          topPostContainer.appendChild(topPostElement);
+        }
+      }
+
+      async function likePost(postId) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/posts/${postId}/like`,
+            {
+              method: "POST",
+            }
+          );
+          const result = await response.json();
+          if (result.success) {
+            fetchPosts(); // Refresh posts
+          } else {
+            console.error("Error liking the post:", result.message);
+          }
+        } catch (error) {
+          console.error("Error liking the post:", error);
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         // Show warning modal on page load
         var warningModal = new bootstrap.Modal(
@@ -300,85 +392,28 @@
         );
         warningModal.show();
 
-        // Function to fetch posts from the API
-        async function fetchPosts() {
-          try {
-            console.log("Fetching posts from API...");
-            const response = await fetch("68.183.189.122/api/posts");
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            const posts = await response.json();
-            displayPosts(posts);
-          } catch (error) {
-            console.error("Error fetching posts:", error);
-          }
-        }
-
-        // Function to display posts
-        function displayPosts(posts) {
-          const postsContainer = document.getElementById("posts-container");
-          postsContainer.innerHTML = "";
-          posts.forEach((post) => {
-            const postElement = document.createElement("div");
-            postElement.classList.add("post");
-            postElement.innerHTML = `
-              <p class="post-text">${post.text}</p>
-              <div class="d-flex justify-content-between">
-                <div class="post-likes">Likes: <span>${post.likes}</span></div>
-                <div class="post-date">${new Date(
-                  post.created_at
-                ).toLocaleString()}</div>
-              </div>
-              <button class="like-button btn btn-sm btn-link" onclick="likePost(${
-                post.id
-              })">
-                Like
-              </button>
-            `;
-            postsContainer.appendChild(postElement);
-          });
-        }
-
-        // Function to handle liking a post
-        async function likePost(postId) {
-          try {
-            const response = await fetch(
-              `68.183.189.122/api/posts/${postId}/like`,
-              {
-                method: "POST",
-              }
-            );
-            const result = await response.json();
-            if (result.success) {
-              fetchPosts(); // Refresh posts
-            } else {
-              console.error("Error liking the post:", result.message);
-            }
-          } catch (error) {
-            console.error("Error liking the post:", error);
-          }
-        }
-
         // Handle post form submission
         const postForm = document.getElementById("postForm");
         postForm.addEventListener("submit", async function (event) {
           event.preventDefault();
           const postText = document.getElementById("postText").value;
+          const postImage = document.getElementById("postImage").files[0];
+          const formData = new FormData();
+          formData.append("text", postText);
+          if (postImage) {
+            formData.append("image", postImage);
+          }
 
           try {
             console.log("Creating a new post...");
-            const response = await fetch("68.183.189.122/api/posts", {
+            const response = await fetch("http://localhost:3000/api/posts", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ text: postText }),
+              body: formData,
             });
             const result = await response.json();
             if (result.success) {
               fetchPosts(); // Refresh posts
-              document.getElementById("postText").value = ""; // Clear the textarea
+              postForm.reset(); // Clear the form
               const postModal = bootstrap.Modal.getInstance(
                 document.getElementById("postModal")
               );
@@ -466,6 +501,24 @@
               console.error("Error fetching weather forecast data:", error);
             });
         }
+
+        // Initialize and add the map
+        function initMap() {
+          const map = L.map("map").setView([3.0738, 101.5183], 10); // Shah Alam coordinates
+
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }).addTo(map);
+
+          L.marker([3.0738, 101.5183])
+            .addTo(map)
+            .bindPopup("Shah Alam")
+            .openPopup();
+        }
+
+        // Load the map
+        initMap();
 
         // Call fetchWeather with your OpenWeatherMap API key
         fetchWeather("7130d97f6c1cbe08addddddb089fe5cb");
