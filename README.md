@@ -47,7 +47,7 @@ To run this project on development
 Clone the project
 
 ```bash
-  git clone https://link-to-project
+  git clone https://link-to-project](https://github.com/raaviian/flood-wise.git)
 ```
 
 Go to the project directory
