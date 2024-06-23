@@ -83,6 +83,47 @@
         </div>
       </div>
 
+      <!-- Email Management Section -->
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4>Add New Email</h4>
+            </div>
+            <div class="card-body">
+              <form id="addEmailForm">
+                <div class="mb-3">
+                  <p>Insert new email to receive alert notifications</p>
+                  <label for="email" class="form-label">Email:</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">Add Email</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h4>Registered Emails</h4>
+            </div>
+            <div class="card-body">
+              <p>
+                This is a list of registered client emails, all alerts will be
+                sent to these emails.
+              </p>
+              <ul id="emailList" class="list-group"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row mt-4">
         <div class="col-md-12">
           <div class="card">
@@ -175,7 +216,7 @@
           const phoneNumber = document.getElementById("phoneNumber").value;
 
           // Send POST request to backend to add phone number
-          fetch("68.183.189.122/add-phone-number", {
+          fetch("http://localhost:3000/add-phone-number", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -200,8 +241,41 @@
             });
         });
 
+      document
+        .getElementById("addEmailForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent form submission
+
+          const email = document.getElementById("email").value;
+
+          // Send POST request to backend to add email
+          fetch("http://localhost:3000/add-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.json().then((error) => {
+                  throw new Error(error.message);
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert(data.message);
+              loadEmails(); // Reload the email list
+            })
+            .catch((error) => {
+              console.error("Error adding email:", error);
+              alert("Failed to add email. Please try again.");
+            });
+        });
+
       function loadPhoneNumbers() {
-        fetch("68.183.189.122/phone-numbers")
+        fetch("http://localhost:3000/phone-numbers")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -235,8 +309,42 @@
           });
       }
 
+      function loadEmails() {
+        fetch("http://localhost:3000/emails")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Network response was not ok: ${response.statusText}`
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = ""; // Clear the list
+
+            data.forEach((email) => {
+              const listItem = document.createElement("li");
+              listItem.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+              listItem.textContent = email.email;
+
+              const deleteButton = document.createElement("button");
+              deleteButton.className = "btn btn-danger btn-sm";
+              deleteButton.textContent = "Delete";
+              deleteButton.onclick = () => deleteEmail(email.id);
+
+              listItem.appendChild(deleteButton);
+              emailList.appendChild(listItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching emails:", error);
+          });
+      }
+
       function deletePhoneNumber(id) {
-        fetch(`68.183.189.122/phone-numbers/${id}`, {
+        fetch(`http://localhost:3000/phone-numbers/${id}`, {
           method: "DELETE",
         })
           .then((response) => {
@@ -257,9 +365,31 @@
           });
       }
 
+      function deleteEmail(id) {
+        fetch(`http://localhost:3000/emails/${id}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((error) => {
+                throw new Error(error.message);
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert(data.message);
+            loadEmails(); // Reload the email list
+          })
+          .catch((error) => {
+            console.error("Error deleting email:", error);
+            alert("Failed to delete email. Please try again.");
+          });
+      }
+
       function toggleDisplay() {
         console.log("Toggling display...");
-        fetch("68.183.189.122/toggle-display", {
+        fetch("http://localhost:3000/toggle-display", {
           method: "POST",
         })
           .then((response) => {
@@ -285,7 +415,7 @@
       }
 
       function loadActivityLog() {
-        fetch("68.183.189.122/button-logs")
+        fetch("http://localhost:3000/button-logs")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -314,7 +444,7 @@
       }
 
       function loadFloodReports() {
-        fetch("68.183.189.122/flood-reports")
+        fetch("http://localhost:3000/flood-reports")
           .then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -385,8 +515,9 @@
         .getElementById("toggleDisplayButton")
         .addEventListener("click", toggleDisplay);
 
-      // Initial load of phone numbers, activity log, and flood reports
+      // Initial load of phone numbers, emails, activity log, and flood reports
       loadPhoneNumbers();
+      loadEmails();
       loadActivityLog();
       loadFloodReports();
     </script>

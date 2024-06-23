@@ -236,6 +236,41 @@
     </div>
     <!-- end of dashboard -->
 
+    <!-- Alert Modal -->
+    <div
+      class="modal fade"
+      id="alertModal"
+      tabindex="-1"
+      aria-labelledby="alertModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content bg-danger text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="alertModalLabel">Flood Alert</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="alertModalBody">
+            <!-- Alert message will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer Section -->
     <footer class="bg-dark text-light text-center py-2">
       <p>COPYRIGHT 2024 | FLOODWISE X UTHM | FINAL YEAR STUDENT PROJECT.</p>
@@ -245,24 +280,11 @@
     <!-- Water level info -->
     <script>
       let allData = [];
+      let modalShown = false;
+
       const floodThreshold = 50; // Set your flood threshold value here
       const warningThreshold = 70; // Warning threshold for ultrasonic sensor
       const dangerThreshold = 30; // Danger threshold for ultrasonic sensor
-
-      // Request permission for browser notifications
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission().then((permission) => {
-          if (permission !== "granted") {
-            console.warn("Permission not granted for notifications");
-          }
-        });
-      }
-
-      function showNotification(title, body) {
-        if (Notification.permission === "granted") {
-          new Notification(title, { body });
-        }
-      }
 
       // Initialize circular progress bars
       const ultrasonicProgressBar = new ProgressBar.Circle(
@@ -297,6 +319,8 @@
               let color = "#00d4ff";
               if (value < dangerThreshold) {
                 color = "#FF0000";
+                // Show the alert modal
+                showModal(value);
               } else if (value < warningThreshold) {
                 color = "#FFFF00";
               }
@@ -354,6 +378,11 @@
                 "stroke",
                 isFloodWarning ? "#FF0000" : "#00d4ff"
               );
+
+              if (isFloodWarning) {
+                // Show the alert modal
+                showModal(value);
+              }
             } catch (error) {
               console.error(
                 "Error in step function of waterLevelProgressBar:",
@@ -366,10 +395,15 @@
 
       function updateReadings(ultrasonicValue, waterLevelValue) {
         // Update Ultrasonic Reading
-        ultrasonicProgressBar.animate(ultrasonicValue / 200);
+        ultrasonicProgressBar.animate(ultrasonicValue / 100);
 
         // Update Water Level Reading and Flood Warning
-        waterLevelProgressBar.animate(waterLevelValue / 200);
+        waterLevelProgressBar.animate(waterLevelValue / 100);
+
+        // Check for water level reading
+        if (waterLevelValue < 70 && !modalShown) {
+          showModal(waterLevelValue);
+        }
 
         // Update text values after 3000ms delay
         setTimeout(() => {
@@ -381,15 +415,32 @@
             isFloodWarning
               ? `Flood Warning`
               : `Current Water Level: ${waterLevelValue} cm`;
-
-          // Show notification if water level exceeds the threshold
-          if (isFloodWarning) {
-            showNotification(
-              "Flood Alert!",
-              `Water level is ${waterLevelValue} cm, exceeding the threshold!`
-            );
-          }
         }, 3000);
+      }
+
+      // Update text values after 3000ms delay
+      setTimeout(() => {
+        document.getElementById(
+          "ultrasonicReading"
+        ).textContent = `Current Water Level: ${ultrasonicValue} cm`;
+        const isFloodWarning = waterLevelValue > floodThreshold;
+        document.getElementById("waterLevelReading").textContent =
+          isFloodWarning
+            ? `Flood Warning`
+            : `Current Water Level: ${waterLevelValue} cm`;
+      }, 3000);
+
+      function showModal(value) {
+        if (!modalShown) {
+          document.getElementById(
+            "alertModalBody"
+          ).textContent = `Water level is ${value} cm, below the threshold!`;
+          var alertModal = new bootstrap.Modal(
+            document.getElementById("alertModal")
+          );
+          alertModal.show();
+          modalShown = true; // Set the flag to true after showing the modal
+        }
       }
 
       async function fetchRealtimeData() {
