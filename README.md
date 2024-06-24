@@ -47,19 +47,31 @@ To run this project on development
 Clone the project
 
 ```bash
-  git clone https://link-to-project](https://github.com/raaviian/flood-wise.git)
+  git clone https://link-to-project](https://github.com/raaviian/flood-wise.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd my-project
+  cd flood-wise
 ```
 
 Install dependencies
 
 ```bash
   npm install
+```
+```bash
+  npm install nodemon
+```
+```bash
+  npm install websocket
+```
+```bash
+  npm install express
+```
+```bash
+  npm install nodemailer
 ```
 
 Start the server
