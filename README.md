@@ -9,9 +9,31 @@ This project proposes an ESP8266-based Flood Alert and Monitoring System. Enhanc
 
 #### Get all items
 
+JSON and XML Weather API and Geolocation Developer API
+Designed for developers by developers, Weather API is the ultimate weather and geolocation API trusted by 410,000+ users worldwide. Integrate weather in JS Library|.
+
 ```http
   GET /api/weather
 ```
+
+###API Response body, headers, and response call
+
+```http
+  http://api.weatherapi.com/v1/search.json?key=&q=Shah Ala
+
+  403
+
+  {
+  "Connection": "keep-alive",
+  "Vary": "Accept-Encoding",
+  "Content-Length": "2334",
+  "Content-Type": "text/html",
+  "Date": "Mon, 24 Jun 2024 01:26:25 GMT"
+}
+
+  403
+```
+
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
