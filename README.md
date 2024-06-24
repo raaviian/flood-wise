@@ -16,7 +16,7 @@ Designed for developers by developers, Weather API is the ultimate weather and g
   GET /api/weather
 ```
 
-###API Response body, headers, and response call
+#### API Response body, headers, and response call
 
 ```http
   http://api.weatherapi.com/v1/search.json?key=&q=Shah-Alam
